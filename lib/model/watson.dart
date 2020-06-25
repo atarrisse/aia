@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:aia/model/watsonResponse.dart';
 import 'package:aia/model/secretLoader.dart';
 
+import 'events.dart';
+
 class Watson {
   /// define singleton
   static final Watson _secrets = new Watson._internal();
@@ -21,12 +23,6 @@ class Watson {
   String _sessionID;
   final int sessionTimeoutMinutes = 5;
 
-  void _setWatsonAuth() async {
-    String _username = 'apikey';
-    String password = await secrets.getSecret(platform, 'apiKey');
-    _auth = 'Basic ' + base64Encode(utf8.encode('$_username:$password'));
-  }
-
   void initWatson() async {
     _setWatsonAuth();
     var params = {'version': await secrets.getSecret(platform, 'version')};
@@ -34,10 +30,20 @@ class Watson {
     _query = params.entries.map((p) => '${p.key}=${p.value}').join('&');
     _url = await secrets.getSecret(platform, 'url');
     _createWatsonSession();
+
+    eventBus.on<WatsonSelectedOption>().listen((event) {
+      this.sendMessage(event.option["value"]["input"]["text"]);
+    });
+  }
+
+  void _setWatsonAuth() async {
+    String _username = 'apikey';
+    String password = await secrets.getSecret(platform, 'apiKey');
+    _auth = 'Basic ' + base64Encode(utf8.encode('$_username:$password'));
   }
 
   Future<void> _createWatsonSession() async {
-    var res = await http.post(
+    http.Response res = await http.post(
         '$_url/v2/assistants/$_assistantId/sessions?$_query',
         headers: {'Authorization': _auth});
 
@@ -60,7 +66,7 @@ class Watson {
     }
   }
 
-  Future<WatsonResponse> sendMessage(String input) async {
+  void sendMessage(String input) async {
     await _checkIfSessionHasTimedout();
 
     var data = '{"input": {"text": "$input"}}';
@@ -76,9 +82,20 @@ class Watson {
     if (res.statusCode != 200)
       throw Exception('http.post error: statusCode= ${res.statusCode}');
 
-    print(res.body);
-    // var response = WatsonResponse.fromJson(json.decode(res.body)["output"]);
-    return WatsonResponse.fromJson(json.decode(res.body)["output"]);
+    final jsonRes = json.decode(res.body)["output"];
+    List<String> intents = [];
+    jsonRes["intents"].forEach((item) => intents.add(item["intent"]));
+
+    final generic = jsonRes["generic"];
+    List response = [];
+    for (var item in generic) {
+      if (intents.isEmpty) {
+        response.add(WatsonResponse(item));
+      } else {
+        response.add(WatsonResponse(item, intents[0]));
+      }
+    }
+    eventBus.fire(WatsonReceiveMessage(response));
   }
 
   void deleteWatsonSession() async {

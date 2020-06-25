@@ -1,24 +1,22 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
+import './theme/theme.dart';
+import './views/chat.dart';
+import './views/summary.dart';
+import './views/content.dart';
+import './views/home.dart';
+import './views/onboarding.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Welcome to Flutter'),
-        ),
-        body: Center(
-          child: Text('Hello World'),
-        ),
-      ),
-    );
-  }
+void main() {
+  runApp(MaterialApp(
+      title: "Aia",
+      theme: CustomTheme.buildTheme(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => Summary(),
+        Content.routeName: (context) => Content(),
+        // '/': (context) => Content(),
+        // '/': (context) => Home(),
+        '/onboarding': (context) => OnBoarding(),
+        '/chat': (context) => Chat(),
+      }));
 }

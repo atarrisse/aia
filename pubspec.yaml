@@ -19,7 +19,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.12.0+4
+  event_bus: any
+  flare_flutter: any
+  flutter_html: any
+  flutter_markdown: any
+  http: any
+  path_provider: any
+  slugify: any
+  url_launcher: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -42,21 +49,17 @@ flutter:
   assets:
     - assets/secrets.json
     - assets/images/
-    - assets/fonts/
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
+    - assets/flare/
+    - content/
 
   fonts:
-    - family: Oxygen
+    - family: Arimo
       fonts:
-        - asset: assets/fonts/Oxygen-Regular.ttf
-        - asset: assets/fonts/Oxygen-Light.ttf
-          weight: 300
-        - asset: assets/fonts/Oxygen-Bold.ttf
+        - asset: assets/fonts/Arimo/Arimo-Bold.ttf
           weight: 700
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+        - asset: assets/fonts/Arimo/Arimo-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Arimo/Arimo-Regular.ttf
+    - family: Pacifico
+      fonts:
+        - asset: assets/fonts/Pacifico/Pacifico-Regular.ttf

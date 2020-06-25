@@ -1,1 +1,1 @@
-enum SENDER { user, watson }
+enum Sender { user, watson }
